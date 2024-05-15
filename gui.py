@@ -158,4 +158,6 @@ class Window(tkinter.Tk):
                 case _ : print(pattern)
             
 
+#test
+
 window = Window()
