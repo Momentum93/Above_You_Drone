@@ -1,4 +1,3 @@
-import tellopy
 from pynput import keyboard
 
 class DroneController:
@@ -9,6 +8,7 @@ class DroneController:
 
     def on_press(self, key):
         # Handle key press events to control the drone.
+
         try:
             if key.char == 'w':
                 self.drone.forward(10)
@@ -18,12 +18,14 @@ class DroneController:
                 self.drone.left(10)
             elif key.char == 'd':
                 self.drone.right(10)
+            # l for land
             elif key.char == 'l':
                 self.drone.land()
             elif key.char == 'q':
                 self.running = False
                 return False
         except AttributeError:
+            # Tab for takeoff
             if key == keyboard.Key.tab:
                 self.drone.takeoff()
 

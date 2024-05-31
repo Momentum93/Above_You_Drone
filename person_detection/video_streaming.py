@@ -85,10 +85,6 @@ def start_video_stream(drone, drone_controller):
                     # Process the frame for pose detection
                     pose_results = pose.process(frame_rgb)
 
-                    # End timing
-                    processing_time = time.time() - processing_start_time
-                    accumulated_delay += processing_time
-
                     if pose_results.pose_landmarks:
                         # Extract landmarks
                         pose_landmarks = pose_results.pose_landmarks.landmark
