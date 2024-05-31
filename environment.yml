@@ -25,6 +25,12 @@ dependencies:
   - xz=5.2.6=h8d14728_0
 
   - pillow
-  - ffmpeg
+  - ffmpeg-python
   - numpy
+
+  - pip:
+    - opencv-python
+    - av
+
+
 prefix: C:\Users\Thomas\miniconda3\envs\drone_test
