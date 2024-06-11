@@ -10,16 +10,8 @@ class DroneController:
         # Handle key press events to control the drone.
 
         try:
-            if key.char == 'w':
-                self.drone.forward(10)
-            elif key.char == 's':
-                self.drone.backward(10)
-            elif key.char == 'a':
-                self.drone.left(10)
-            elif key.char == 'd':
-                self.drone.right(10)
             # l for land
-            elif key.char == 'l':
+            if key.char == 'l':
                 self.drone.land()
             elif key.char == 'q':
                 self.running = False
