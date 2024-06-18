@@ -3,7 +3,7 @@ import math
 from utils import get_frame_height, get_frame_width
 
 # Number of measurements that should be used to calculate average coordinates
-FILTER_SIZE = 5
+FILTER_SIZE = 3
 
 # Store recent measurements for the average filter
 recent_shoulder_xs = []
