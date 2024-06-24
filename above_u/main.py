@@ -3,7 +3,7 @@ from drone_controller import DroneController
 from serial_controller import SerialListener
 from video_processing import VideoProcessor
 
-# Constants for the serial port configuration
+# Serial port configuration
 SERIAL_PORT = '/dev/cu.usbserial-110'
 BAUD_RATE = 9600
 
