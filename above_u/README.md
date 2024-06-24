@@ -22,13 +22,16 @@ This project uses MediaPipe Pose estimation to control a Tello drone. The drone'
 
 ### Keyboard Controls:
 
-- **W**: Move forward
-- **S**: Move backward
-- **A**: Move left
-- **D**: Move right
 - **L**: Land
 - **Tab**: Take off
 - **Q**: Quit
+
+### Serial Port Commands:
+- `takeoff`: Let the drone take off.
+- `land`: Land the drone.
+- `start_track`: Start the tracking of a person.
+- `stop_track`: Stop the tracking of a person.
+- `calibrate`: Calibrating colors of the person in frame.
 
 ## How It Works
 
