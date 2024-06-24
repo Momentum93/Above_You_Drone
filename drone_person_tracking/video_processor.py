@@ -10,9 +10,16 @@ from utils import get_detect_colors
 import warnings
 
 
-# Converts a numpy array to a Color and RGB image
 def create_image_from_frame(frame):
-    # Get frame and convert to RGB
+    """
+    Convert a frame to a Color and RGB image.
+
+    Args:
+        frame (av.frame.Frame): The input frame.
+
+    Returns:
+        tuple: The BGR image and the RGB image.
+    """
     image = cv2.cvtColor(np.array(frame.to_image()), cv2.COLOR_RGB2BGR)
     frame_rgb = cv2.cvtColor(image, cv2.COLOR_BGR2RGB)
     return image, frame_rgb
@@ -20,15 +27,35 @@ def create_image_from_frame(frame):
 
 class VideoProcessor:
     def __init__(self, drone_controller):
+        """
+            Initialize the VideoProcessor with a drone controller.
+
+            Args:
+                drone_controller (object): The drone controller object.
+            """
         self.drone_controller = drone_controller
         self.last_30_frame_delays = []
         self.frame_count = 0
         self.pose_landmarks = None
         self.torso_size = None
         self.last_similarity = None
+        self.tracking_active = False
 
-    # Calculate the average delay of the processing from the last 30 frames
+    def start_tracking(self):
+        self.tracking_active = True
+
+    def stop_tracking(self):
+        self.tracking_active = False
+
     def calculate_delay(self, start_time, end_time, image):
+        """
+        Calculate and display the average delay of the last 30 frames.
+
+        Args:
+            start_time (float): The start time of frame processing.
+            end_time (float): The end time of frame processing.
+            image (numpy.ndarray): The current frame image.
+        """
         frame_delay = end_time - start_time
         self.last_30_frame_delays.append(frame_delay)
 
@@ -43,38 +70,74 @@ class VideoProcessor:
         cv2.putText(image, f'Avg Delay Last 30 Frames: {average_delay:.4f} s', (10, 110),
                     cv2.FONT_HERSHEY_SIMPLEX, 1, (0, 255, 255), 2, cv2.LINE_AA)
 
-    def process_pose_landmarks(self, pose_results):
-        self.pose_landmarks = pose_results.pose_landmarks.landmark
+    def calibrate_colors(self, image):
+        """
+        Calibrate colors of the person in the frame.
 
-        # Calculate average of shoulder position and torso size
+        Args:
+            image (numpy.ndarray): The RGB frame image.
+        """
+        if self.pose_landmarks:
+            calibrate_colors(image, self.pose_landmarks)
+        else:
+            print("Color calibration didn't work. No pose landmarks detected")
+
+    def process_pose_landmarks(self, pose_results):
+        """
+        Process the pose landmarks to calculate average shoulder position and torso size.
+
+        Args:
+            pose_results (mediapipe.python.solutions.pose.PoseLandmark): The pose landmarks results.
+
+        Returns:
+            tuple: The average shoulder X and Y coordinates.
+        """
+        self.pose_landmarks = pose_results.pose_landmarks.landmark
         avg_shoulder_x, avg_shoulder_y, self.torso_size = calculate_avg_coordinates(self.pose_landmarks,
                                                                                     calculate_torso_size(
                                                                                         self.pose_landmarks))
-
         return avg_shoulder_x, avg_shoulder_y
 
     def process_frame_tracking(self, frame_rgb, pose_results):
+        """
+        Process the frame for tracking purposes.
+
+        Args:
+            frame_rgb (numpy.ndarray): The RGB frame image.
+            pose_results (mediapipe.python.solutions.pose.PoseLandmark): The pose landmarks results.
+        """
         avg_shoulder_x, avg_shoulder_y = self.process_pose_landmarks(pose_results)
 
         # Perform person color similarity check every 30th frame
         if self.frame_count % 30 == 0 and get_detect_colors:
             self.last_similarity = check_person_similarity(frame_rgb, self.pose_landmarks)
 
-        # Follow person in the frame
-        track_person(self.last_similarity, self.drone_controller.drone, avg_shoulder_x, avg_shoulder_y,
-                     self.torso_size)
+        # Follow person in the frame if tracking is activated
+        if self.tracking_active:
+            track_person(self.last_similarity, self.drone_controller.drone, avg_shoulder_x, avg_shoulder_y,
+                         self.torso_size)
+            print("Tracking not active.")
 
     def process_frame(self, frame_rgb):
-        # Process the frame for pose detection
-        pose_results = pose.process(frame_rgb)
+        """
+        Process the frame for pose detection.
 
+        Args:
+            frame_rgb (numpy.ndarray): The RGB frame image.
+
+        Returns:
+            mediapipe.python.solutions.pose.PoseLandmark: The pose landmarks results.
+        """
+        pose_results = pose.process(frame_rgb)
         # Process the pose landmarks if a person is in frame
         if pose_results.pose_landmarks:
             self.process_frame_tracking(frame_rgb, pose_results)
-
         return pose_results
 
     def start_video_stream(self):
+        """
+        Start the video stream and process each frame.
+        """
         container = av.open(self.drone_controller.drone.get_video_stream())
         try:
             while self.drone_controller.running:

@@ -11,7 +11,17 @@ calibrated_dominant_colors = None
 
 
 def calculate_torso_bounding_box(frame, x1, x2, x3, x4, y1, y2, y3, y4):
-    # Calculate bounding box for the torso
+    """
+    Calculate bounding box for the torso.
+
+    Args:
+        frame (numpy.ndarray): The current video frame.
+        x1, x2, x3, x4 (float): X coordinates of the shoulders and hips.
+        y1, y2, y3, y4 (float): Y coordinates of the shoulders and hips.
+
+    Returns:
+        numpy.ndarray: Cropped frame containing the torso region.
+    """
     x_min = int(min(x1, x2, x3, x4) * get_frame_width())
     x_max = int(max(x1, x2, x3, x4) * get_frame_width())
     y_min = int(min(y1, y2, y3, y4) * get_frame_height())
@@ -21,6 +31,19 @@ def calculate_torso_bounding_box(frame, x1, x2, x3, x4, y1, y2, y3, y4):
 
 
 def extract_torso_region(frame, pose_landmarks):
+    """
+    Extract the torso region from the frame using pose landmarks.
+
+    Args:
+        frame (numpy.ndarray): The current video frame.
+        pose_landmarks (list): List of pose landmarks for the person in the frame.
+
+    Returns:
+        numpy.ndarray: Cropped frame containing the torso region.
+
+    Raises:
+        ValueError: If coordinates of landmarks are not within the range of 0 to 1.
+    """
     # Get coordinates of shoulders and hips
     left_shoulder = pose_landmarks[mp.solutions.pose.PoseLandmark.LEFT_SHOULDER]
     right_shoulder = pose_landmarks[mp.solutions.pose.PoseLandmark.RIGHT_SHOULDER]
@@ -34,20 +57,35 @@ def extract_torso_region(frame, pose_landmarks):
     # Calculate bounding box for the torso
     bounding_box = calculate_torso_bounding_box(frame, left_shoulder.x, right_shoulder.x, left_hip.x, right_hip.x,
                                                 left_shoulder.y, right_shoulder.y, left_hip.y, right_hip.y)
-
-    # Return the cropped torso region
     return bounding_box
 
 
-# Compute a normalized color histogram for the given image
 def calculate_color_histogram(image):
+    """
+    Compute a normalized color histogram for the given image.
+
+    Args:
+        image (numpy.ndarray): The input image.
+
+    Returns:
+        numpy.ndarray: The normalized color histogram.
+    """
     hist = cv2.calcHist([image], [0, 1, 2], None, [8, 8, 8], [0, 256, 0, 256, 0, 256])
     hist = cv2.normalize(hist, hist).flatten()
     return hist.astype(np.float32)
 
 
-# Identify the dominant colors in the image using K-means clustering
 def find_dominant_colors(image, k=3):
+    """
+    Identify the dominant colors in the image using K-means clustering.
+
+    Args:
+        image (numpy.ndarray): The input image.
+        k (int, optional): Number of clusters for K-means. Default is 3.
+
+    Returns:
+        numpy.ndarray or None: Array of dominant colors or None if an error occurs.
+    """
     try:
         pixels = image.reshape(-1, 3)
         kmeans = KMeans(n_clusters=k).fit(pixels)
@@ -59,21 +97,46 @@ def find_dominant_colors(image, k=3):
     return None
 
 
-# Compare two histograms and returns a similarity score
 def calculate_histogram_similarity(hist1, hist2, method=cv2.HISTCMP_CORREL):
+    """
+    Compare two histograms and return a similarity score.
+
+    Args:
+        hist1 (numpy.ndarray): First histogram.
+        hist2 (numpy.ndarray): Second histogram.
+        method (int, optional): OpenCV histogram comparison method. Default is cv2.HISTCMP_CORREL.
+
+    Returns:
+        float: Similarity score between the two histograms.
+    """
     return cv2.compareHist(hist1, hist2, method)
 
 
-# Compare two color arrays and returns a similarity score
-def calculate_color_similarity(calibrated_dominant_colors, current_colors):
-    color_similarity = np.mean([np.linalg.norm(calibrated_dominant_colors[i] - current_colors[i]) for i in
-                                range(len(calibrated_dominant_colors))])
+def calculate_color_similarity(calibrated_colors, current_colors):
+    """
+    Compare two color arrays and return a similarity score.
+
+    Args:
+        calibrated_colors (numpy.ndarray): Array of calibrated dominant colors.
+        current_colors (numpy.ndarray): Array of current dominant colors.
+
+    Returns:
+        float: Similarity score between the two color arrays.
+    """
+    color_similarity = np.mean([np.linalg.norm(calibrated_colors[i] - current_colors[i]) for i in
+                                range(len(calibrated_colors))])
     color_similarity = 1 - (color_similarity / 441.67)  # Normalize to [0, 1]
     return color_similarity
 
 
-# Calibrates the colors for input frame
 def calibrate_colors(frame, pose_landmarks):
+    """
+    Calibrate the colors for the input frame.
+
+    Args:
+        frame (numpy.ndarray): The current video frame.
+        pose_landmarks (list): List of pose landmarks for the person in the frame.
+    """
     global calibrated_color_histogram, calibrated_dominant_colors
 
     try:
@@ -84,10 +147,30 @@ def calibrate_colors(frame, pose_landmarks):
         warnings.warn("Calibration warning: Torso not fully in frame", category=UserWarning)
 
 
-# Check the similarity of the current frame's person to the calibrated person
+def are_torso_colors_calibrated():
+    """
+    Check if torso colors are calibrated.
+
+    Returns:
+        bool: True if calibrated, False otherwise.
+    """
+    return calibrated_color_histogram is not None and calibrated_dominant_colors is not None
+
+
 def check_person_similarity(frame, pose_landmarks, method=cv2.HISTCMP_CORREL):
-    # Check similarity if torso colors are calibrated
-    if calibrated_color_histogram is not None and calibrated_dominant_colors is not None:
+    """
+    Check the similarity of the current frame's person to the calibrated person.
+
+    Args:
+        frame (numpy.ndarray): The current video frame.
+        pose_landmarks (list): List of pose landmarks for the person in the frame.
+        method (int, optional): OpenCV histogram comparison method. Default is cv2.HISTCMP_CORREL.
+
+    Returns:
+        float or None: The average similarity score or None if similarity cannot be computed.
+    """
+    if are_torso_colors_calibrated():
+        # Extract torso if torso is fully in frame
         try:
             current_torso_region = extract_torso_region(frame, pose_landmarks)
         except ValueError:
@@ -97,8 +180,8 @@ def check_person_similarity(frame, pose_landmarks, method=cv2.HISTCMP_CORREL):
         current_histogram = calculate_color_histogram(current_torso_region)
         current_colors = find_dominant_colors(current_torso_region)
 
-        histogram_similarity = calculate_histogram_similarity(calibrated_color_histogram, current_histogram, method)
         if current_colors is not None:
+            histogram_similarity = calculate_histogram_similarity(calibrated_color_histogram, current_histogram, method)
             color_similarity = calculate_color_similarity(calibrated_dominant_colors, current_colors)
 
             return (histogram_similarity + color_similarity) / 2  # Average of both similarities
@@ -107,3 +190,36 @@ def check_person_similarity(frame, pose_landmarks, method=cv2.HISTCMP_CORREL):
     # Return None if torso colors aren't calibrated
     else:
         return None
+
+
+def check_person_similarity(frame, pose_landmarks, method=cv2.HISTCMP_CORREL):
+    """
+    Check the similarity of the current frame's person to the calibrated person.
+
+    Parameters:
+    frame (np.ndarray): The current video frame.
+    pose_landmarks (list): The pose landmarks of the person in the frame.
+    method (int): The method for comparing histograms (default: cv2.HISTCMP_CORREL).
+
+    Returns:
+    float or None: The average similarity score or None if the comparison cannot be made.
+    """
+    if not are_torso_colors_calibrated():
+        return None
+
+    try:
+        current_torso_region = extract_torso_region(frame, pose_landmarks)
+    except ValueError:
+        warnings.warn("Calibration warning: Torso not fully in frame", category=UserWarning)
+        return None
+
+    current_histogram = calculate_color_histogram(current_torso_region)
+    current_colors = find_dominant_colors(current_torso_region)
+
+    if current_colors is None:
+        return None
+
+    histogram_similarity = calculate_histogram_similarity(calibrated_color_histogram, current_histogram, method)
+    color_similarity = calculate_color_similarity(calibrated_dominant_colors, current_colors)
+
+    return (histogram_similarity + color_similarity) / 2
