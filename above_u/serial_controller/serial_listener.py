@@ -37,25 +37,28 @@ class SerialListener:
                 self.handle_command(command)
 
     def handle_command(self, command):
-        print("Serial port command: ", command)
         """
         Handle the incoming command and perform the corresponding action.
 
         Args:
             command (str): The command received via the serial port.
         """
+        print("Serial port command: ", command)
+        
         if command == 'takeoff':
             print("Taking off...")
             self.drone_controller.takeoff()
         elif command == 'land':
             print("Landing...")
             self.drone_controller.land()
+
         elif command == 'start_track':
             print("Starting tracking...")
             self.video_processor.start_tracking()
         elif command == 'stop_track':
             print("Stopping tracking...")
             self.video_processor.stop_tracking()
+
         elif command == 'calibrate':
             print("Calibrating colors...")
             self.video_processor.calibrate_colors()
