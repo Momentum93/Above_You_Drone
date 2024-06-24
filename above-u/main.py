@@ -1,7 +1,7 @@
 import threading
 from drone_controller import DroneController
-from serial_listener import SerialListener
-from video_processor import VideoProcessor
+from serial_controller import SerialListener
+from video_processing import VideoProcessor
 
 # Constants for the serial port configuration
 SERIAL_PORT = '/dev/cu.usbserial-110'

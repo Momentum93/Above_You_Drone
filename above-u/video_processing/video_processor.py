@@ -3,10 +3,10 @@ import cv2
 import mediapipe as mp
 import numpy as np
 import time
-from pose_estimation import pose, calculate_torso_size, mp_drawing, calculate_avg_coordinates
-from person_color_detection import check_person_similarity, calibrate_colors
-from drone_tracking_control import track_person
-from utils import get_detect_colors
+from .pose_estimation import pose, calculate_torso_size, mp_drawing, calculate_avg_coordinates
+from .person_color_detection import check_person_similarity, calibrate_colors
+from .drone_tracking import track_person
+from .utils import get_detect_colors
 import warnings
 
 

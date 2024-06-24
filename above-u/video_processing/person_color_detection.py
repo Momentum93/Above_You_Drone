@@ -2,8 +2,7 @@ import cv2
 import mediapipe as mp
 import numpy as np
 from sklearn.cluster import KMeans
-from utils import get_frame_height, get_frame_width
-import warnings
+from .utils import get_frame_height, get_frame_width
 
 # Calibrated color histogram and dominant colors
 calibrated_color_histogram = None

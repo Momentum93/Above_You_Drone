@@ -1,4 +1,4 @@
-from utils import get_detect_colors
+from .utils import get_detect_colors
 
 
 def adjust_drone_height(drone, avg_shoulder_y):
