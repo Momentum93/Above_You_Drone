@@ -3,12 +3,16 @@ from drone_controller import DroneController
 from serial_listener import SerialListener
 from video_processor import VideoProcessor
 
+# Constants for the serial port configuration
+SERIAL_PORT = '/dev/cu.usbserial-110'
+BAUD_RATE = 9600
+
 
 class Main:
     def __init__(self):
         self.drone_controller = DroneController()
         self.video_processor = VideoProcessor(self.drone_controller)
-        self.serial_listener = SerialListener('/dev/ttyUSB0', 115200,
+        self.serial_listener = SerialListener(SERIAL_PORT, BAUD_RATE,
                                               self.drone_controller, self.video_processor)
 
     def start(self):

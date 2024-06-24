@@ -92,7 +92,7 @@ def find_dominant_colors(image, k=3):
         colors = np.round(kmeans.cluster_centers_).astype(int)
         return colors
     except ValueError as e:
-        warnings.warn(str(e))
+        print(f"Error occurred when finding dominant colors: {e}")
 
     return None
 
@@ -144,7 +144,7 @@ def calibrate_colors(frame, pose_landmarks):
         calibrated_color_histogram = calculate_color_histogram(torso_region)
         calibrated_dominant_colors = find_dominant_colors(torso_region)
     except ValueError:
-        warnings.warn("Calibration warning: Torso not fully in frame", category=UserWarning)
+        print(f"Calibration did not work: Torso not fully in frame")
 
 
 def are_torso_colors_calibrated():
@@ -174,7 +174,7 @@ def check_person_similarity(frame, pose_landmarks, method=cv2.HISTCMP_CORREL):
         try:
             current_torso_region = extract_torso_region(frame, pose_landmarks)
         except ValueError:
-            warnings.warn("Calibration warning: Torso not fully in frame", category=UserWarning)
+            print(f"Calibration did not work: Torso not fully in frame")
             return None
 
         current_histogram = calculate_color_histogram(current_torso_region)
@@ -210,7 +210,7 @@ def check_person_similarity(frame, pose_landmarks, method=cv2.HISTCMP_CORREL):
     try:
         current_torso_region = extract_torso_region(frame, pose_landmarks)
     except ValueError:
-        warnings.warn("Calibration warning: Torso not fully in frame", category=UserWarning)
+        print(f"Calibration did not work: Torso not fully in frame")
         return None
 
     current_histogram = calculate_color_histogram(current_torso_region)

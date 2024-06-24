@@ -28,11 +28,11 @@ def create_image_from_frame(frame):
 class VideoProcessor:
     def __init__(self, drone_controller):
         """
-            Initialize the VideoProcessor with a drone controller.
+        Initialize the VideoProcessor with a drone controller.
 
-            Args:
-                drone_controller (object): The drone controller object.
-            """
+        Args:
+            drone_controller (object): The drone controller object.
+        """
         self.drone_controller = drone_controller
         self.last_30_frame_delays = []
         self.frame_count = 0
@@ -116,6 +116,7 @@ class VideoProcessor:
         if self.tracking_active:
             track_person(self.last_similarity, self.drone_controller.drone, avg_shoulder_x, avg_shoulder_y,
                          self.torso_size)
+        else:
             print("Tracking not active.")
 
     def process_frame(self, frame_rgb):
@@ -138,7 +139,14 @@ class VideoProcessor:
         """
         Start the video stream and process each frame.
         """
-        container = av.open(self.drone_controller.drone.get_video_stream())
+        try:
+            container = av.open(self.drone_controller.drone.get_video_stream())
+        except av.error.InvalidDataError as e:
+            print(f"Failed to open video stream: {e}")
+            return
+        except Exception as e:
+            print(f"An unexpected error occurred: {e}")
+            return
         try:
             while self.drone_controller.running:
                 for frame in container.decode(video=0):
