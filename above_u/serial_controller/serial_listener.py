@@ -1,6 +1,5 @@
 import cv2
 import serial
-import base64
 import numpy as np
 
 
@@ -76,19 +75,23 @@ class SerialListener:
             self.send_image()
 
     def send_image(self):
-        """
-        Capture the current frame and send it through the serial port.
-        """
         frame = self.video_processor.get_current_frame()
         if frame is not None:
             # Encode the image as JPEG
             ret, buffer = cv2.imencode('.jpg', frame)
             if ret:
-                # Convert to base64 string
-                jpg_as_text = base64.b64encode(buffer).decode('utf-8')
-                # Send the length of the string first
-                self.serial_port.write(f"{len(jpg_as_text):08d}".encode('utf-8'))
-                # Send the base64 string
-                self.serial_port.write(jpg_as_text.encode('utf-8'))
+                # Convert buffer to uint8 array
+                data = np.array(buffer).tobytes()
+                data_length = len(data)
+
+                # Send the length of the data first
+                self.serial_port.write(data_length.to_bytes(4, byteorder='big'))
+
+                # Send the data in chunks
+                chunk_size = 1024
+                for i in range(0, data_length, chunk_size):
+                    self.serial_port.write(data[i:i+chunk_size])
+            else:
+                print("Failed to encode frame to JPEG.")
         else:
             print("No frame available to send.")
