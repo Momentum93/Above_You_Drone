@@ -1,4 +1,7 @@
-import serial  # Import the pyserial library to handle serial communication
+import cv2
+import serial
+import base64
+import numpy as np
 
 
 class SerialListener:
@@ -17,7 +20,7 @@ class SerialListener:
         self.video_processor = video_processor
 
         try:
-            self.serial_port = serial.Serial(port, baud_rate)  # Attempt to initialize the serial port
+            self.serial_port = serial.Serial(port, baud_rate)
         except serial.SerialException as e:
             print(f"Error opening serial port {port}: {e}")
 
@@ -33,8 +36,13 @@ class SerialListener:
         while True:
             if self.serial_port.in_waiting > 0:
                 # Read and handle the incoming command
-                command = self.serial_port.readline().decode('utf-8').strip()
-                self.handle_command(command)
+                try:
+                    command = self.serial_port.readline().strip().decode('utf-8')
+                    self.handle_command(command)
+                except UnicodeDecodeError as e:
+                    print(f"Error decoding command: {e}")
+                except serial.SerialException as e:
+                    print(f"Error opening serial port {e}")
 
     def handle_command(self, command):
         """
@@ -62,3 +70,25 @@ class SerialListener:
         elif command == 'calibrate':
             print("Calibrating colors...")
             self.video_processor.calibrate_colors()
+
+        elif command == 'image':
+            print("Send image...")
+            self.send_image()
+
+    def send_image(self):
+        """
+        Capture the current frame and send it through the serial port.
+        """
+        frame = self.video_processor.get_current_frame()
+        if frame is not None:
+            # Encode the image as JPEG
+            ret, buffer = cv2.imencode('.jpg', frame)
+            if ret:
+                # Convert to base64 string
+                jpg_as_text = base64.b64encode(buffer).decode('utf-8')
+                # Send the length of the string first
+                self.serial_port.write(f"{len(jpg_as_text):08d}".encode('utf-8'))
+                # Send the base64 string
+                self.serial_port.write(jpg_as_text.encode('utf-8'))
+        else:
+            print("No frame available to send.")

@@ -3,11 +3,12 @@ import cv2
 import mediapipe as mp
 import numpy as np
 import time
+import warnings
+
 from .pose_estimation import pose, calculate_torso_size, mp_drawing, calculate_avg_coordinates
 from .person_color_detection import check_person_similarity, calibrate_colors
 from .drone_tracking import track_person
 from .utils import get_detect_colors
-import warnings
 
 
 def create_image_from_frame(frame):
@@ -34,11 +35,15 @@ class VideoProcessor:
             drone_controller (object): The drone controller object.
         """
         self.drone_controller = drone_controller
+
+        self.current_frame = None
         self.last_30_frame_delays = []
         self.frame_count = 0
+
         self.pose_landmarks = None
         self.torso_size = None
         self.last_similarity = None
+
         self.tracking_active = False
 
     def start_tracking(self):
@@ -135,6 +140,12 @@ class VideoProcessor:
             self.process_frame_tracking(frame_rgb, pose_results)
         return pose_results
 
+    def get_current_frame(self):
+        """
+        Get the current frame image.
+        """
+        return self.current_frame
+
     def start_video_stream(self):
         """
         Start the video stream and process each frame.
@@ -152,6 +163,9 @@ class VideoProcessor:
                 for frame in container.decode(video=0):
                     # Get frame and convert to RGB
                     image, frame_rgb = create_image_from_frame(frame)
+
+                    # Update the current frame
+                    self.current_frame = image.copy()
 
                     # Count number of frames for skipping processing for some frames
                     self.frame_count += 1
