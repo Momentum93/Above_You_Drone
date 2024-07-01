@@ -28,7 +28,7 @@ class VideoProcessor:
         self.torso_size = None
         self.last_similarity = None
 
-        self.tracking_active = False
+        self.tracking_active = True
 
     def start_tracking(self):
         self.tracking_active = True
@@ -187,12 +187,12 @@ class VideoProcessor:
                                                   mp.solutions.pose.POSE_CONNECTIONS)
 
                         # Draw similar score
-                        if self.last_similarity is not None:
-                            cv2.putText(image, f'Similarity: {self.last_similarity:.2f}', (10, 70),
-                                        cv2.FONT_HERSHEY_SIMPLEX, 1, (0, 255, 0), 2, cv2.LINE_AA)
+                        #if self.last_similarity is not None:
+                           # cv2.putText(image, f'Similarity: {self.last_similarity:.2f}', (10, 70),
+                                       # cv2.FONT_HERSHEY_SIMPLEX, 1, (0, 255, 0), 2, cv2.LINE_AA)
 
                     # Calculate delay from processing
-                    self.calculate_delay(start_time, time.time(), image)
+                    #self.calculate_delay(start_time, time.time(), image)
 
                     # Ensure cv2.imshow is called in a GUI-capable environment
                     try:

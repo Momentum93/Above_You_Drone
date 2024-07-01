@@ -70,7 +70,7 @@ def adjust_drone_yaw(drone, avg_shoulder_x, torso_size):
     p_x = 0.11  # Higher value -> faster drone movements
 
     horizontal_error = avg_shoulder_x - target_x_position
-    horizontal_adjustment = int(p_x * horizontal_error * (1 + 0.5*torso_size))
+    horizontal_adjustment = int(p_x * horizontal_error * (1 + 0.3*torso_size))
     if abs(horizontal_error) > threshold_x:
         if horizontal_adjustment > 0:
             drone.clockwise(min(horizontal_adjustment, 100))

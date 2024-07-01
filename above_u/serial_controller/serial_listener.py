@@ -77,13 +77,15 @@ class SerialListener:
     def send_image(self):
         frame = self.video_processor.get_current_frame()
         if frame is not None:
-            # Encode the image as JPEG
-            ret, buffer = cv2.imencode('.png', frame)
+            # Encode the image as jpg
+            ret, buffer = cv2.imencode('.jpg', frame)
             if ret:
                 # Convert buffer to base64 string
-                b64_encoded_image = base64.b64encode(buffer).decode('utf-8')
+                data = base64.b64encode(buffer).decode('utf-8')
+                # Format as a string with "<IMAGE>..."
+                formatted_data = "<IMAGE>" + data
                 # Send the image as bytes
-                self.serial_port.write(b64_encoded_image.encode('utf-8'))
+                self.serial_port.write(formatted_data.encode('utf-8'))
             else:
                 print("Failed to encode frame to JPEG.")
         else:

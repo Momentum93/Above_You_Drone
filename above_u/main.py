@@ -5,7 +5,7 @@ from serial_controller import SerialListener
 from video_processing import VideoProcessor
 
 # Serial port configuration
-SERIAL_PORT = '/dev/cu.usbserial-110'
+SERIAL_PORT = '/dev/cu.usbserial-10'
 BAUD_RATE = 9600
 
 
