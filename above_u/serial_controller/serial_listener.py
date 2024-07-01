@@ -52,21 +52,23 @@ class SerialListener:
         """
         print("Serial port command: ", command)
         
-        if command == 'takeoff':
+        if command == "<COMMAND>TAKEOFF": #'takeoff':
             print("Taking off...")
             self.drone_controller.takeoff()
-        elif command == 'land':
+            
+        elif command == '<COMMAND>LAND': #'land':
             print("Landing...")
             self.drone_controller.land()
 
-        elif command == 'start_track':
+        elif command == '<COMMAND>START_TRACK': #'start_track':
             print("Starting tracking...")
             self.video_processor.start_tracking()
-        elif command == 'stop_track':
+
+        elif command == '<COMMAND>STOP_TRACK': #'stop_track':
             print("Stopping tracking...")
             self.video_processor.stop_tracking()
 
-        elif command == 'calibrate':
+        elif command == '<COMMAND>CALIBRATE': #'calibrate':
             print("Calibrating colors...")
             self.video_processor.calibrate_colors()
 
