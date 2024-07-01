@@ -9,11 +9,3 @@ def get_frame_height():
 
 def get_frame_width():
     return FRAME_WIDTH
-
-
-# Set if color detection to differentiate between persons should be on
-DETECT_COLORS = True
-
-
-def get_detect_colors():
-    return DETECT_COLORS

@@ -1,6 +1,6 @@
+import base64
 import cv2
 import serial
-import numpy as np
 
 
 class SerialListener:
@@ -70,7 +70,7 @@ class SerialListener:
             print("Calibrating colors...")
             self.video_processor.calibrate_colors()
 
-        elif command == 'image':
+        elif command == '<IMAGE>REQUEST_IMAGE':
             print("Send image...")
             self.send_image()
 
@@ -78,19 +78,12 @@ class SerialListener:
         frame = self.video_processor.get_current_frame()
         if frame is not None:
             # Encode the image as JPEG
-            ret, buffer = cv2.imencode('.jpg', frame)
+            ret, buffer = cv2.imencode('.png', frame)
             if ret:
-                # Convert buffer to uint8 array
-                data = np.array(buffer).tobytes()
-                data_length = len(data)
-
-                # Send the length of the data first
-                self.serial_port.write(data_length.to_bytes(4, byteorder='big'))
-
-                # Send the data in chunks
-                chunk_size = 1024
-                for i in range(0, data_length, chunk_size):
-                    self.serial_port.write(data[i:i+chunk_size])
+                # Convert buffer to base64 string
+                b64_encoded_image = base64.b64encode(buffer).decode('utf-8')
+                # Send the image as bytes
+                self.serial_port.write(b64_encoded_image.encode('utf-8'))
             else:
                 print("Failed to encode frame to JPEG.")
         else:

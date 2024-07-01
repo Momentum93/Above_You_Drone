@@ -2,31 +2,12 @@ import cv2
 import mediapipe as mp
 import numpy as np
 from sklearn.cluster import KMeans
+
 from .utils import get_frame_height, get_frame_width
 
 # Calibrated color histogram and dominant colors
 calibrated_color_histogram = None
 calibrated_dominant_colors = None
-
-
-def calculate_torso_bounding_box(frame, x1, x2, x3, x4, y1, y2, y3, y4):
-    """
-    Calculate bounding box for the torso.
-
-    Args:
-        frame (numpy.ndarray): The current video frame.
-        x1, x2, x3, x4 (float): X coordinates of the shoulders and hips.
-        y1, y2, y3, y4 (float): Y coordinates of the shoulders and hips.
-
-    Returns:
-        numpy.ndarray: Cropped frame containing the torso region.
-    """
-    x_min = int(min(x1, x2, x3, x4) * get_frame_width())
-    x_max = int(max(x1, x2, x3, x4) * get_frame_width())
-    y_min = int(min(y1, y2, y3, y4) * get_frame_height())
-    y_max = int(max(y1, y2, y3, y4) * get_frame_height())
-
-    return frame[y_min:y_max, x_min:x_max]
 
 
 def extract_torso_region(frame, pose_landmarks):
@@ -54,8 +35,12 @@ def extract_torso_region(frame, pose_landmarks):
         raise ValueError("Coordinates of landmarks are not within the range of 0 to 1")
 
     # Calculate bounding box for the torso
-    bounding_box = calculate_torso_bounding_box(frame, left_shoulder.x, right_shoulder.x, left_hip.x, right_hip.x,
-                                                left_shoulder.y, right_shoulder.y, left_hip.y, right_hip.y)
+    x_min = int(min(left_shoulder, right_shoulder, left_hip.x, right_hip.x) * get_frame_width())
+    x_max = int(max(left_shoulder, right_shoulder, left_hip.x, right_hip.x) * get_frame_width())
+    y_min = int(min(left_shoulder.y, right_shoulder.y, left_hip.y, right_hip.y) * get_frame_height())
+    y_max = int(max(left_shoulder.y, right_shoulder.y, left_hip.y, right_hip.y) * get_frame_height())
+    bounding_box = frame[y_min:y_max, x_min:x_max]
+
     return bounding_box
 
 

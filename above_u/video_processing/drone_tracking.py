@@ -1,6 +1,3 @@
-from .utils import get_detect_colors
-
-
 def adjust_drone_height(drone, avg_shoulder_y):
     """
     Adjust the drone's height based on the average Y-position of the shoulders.
@@ -114,15 +111,10 @@ def track_person(last_similarity, drone, avg_shoulder_x, avg_shoulder_y, torso_s
         avg_shoulder_y (float): The average Y-coordinate of the shoulders.
         torso_size (float): The detected size of the torso.
     """
-    # Check if color detection to differentiate between persons should be on
-    if get_detect_colors():
-        # Check if drone should follow person in frame
-        if last_similarity is not None and last_similarity > 0.4:
-            adjust_drone(drone, avg_shoulder_x, avg_shoulder_y, torso_size)
-        elif last_similarity is None:
-            adjust_drone(drone, avg_shoulder_x, avg_shoulder_y, torso_size)
-        else:
-            print("Warning: Person not recognized because of low similarity score.")
-    else:
-        # Follow any person in frame
+    # Check if drone should follow person in frame
+    if last_similarity is not None and last_similarity > 0.4:
         adjust_drone(drone, avg_shoulder_x, avg_shoulder_y, torso_size)
+    elif last_similarity is None:
+        adjust_drone(drone, avg_shoulder_x, avg_shoulder_y, torso_size)
+    else:
+        print("Person not recognized because of low similarity score.")

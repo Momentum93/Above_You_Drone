@@ -1,5 +1,5 @@
-import mediapipe as mp
 import math
+import mediapipe as mp
 
 from .utils import get_frame_height, get_frame_width
 

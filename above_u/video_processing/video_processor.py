@@ -8,22 +8,6 @@ import warnings
 from .pose_estimation import pose, calculate_torso_size, mp_drawing, calculate_avg_coordinates
 from .person_color_detection import check_person_similarity, calibrate_colors
 from .drone_tracking import track_person
-from .utils import get_detect_colors
-
-
-def create_image_from_frame(frame):
-    """
-    Convert a frame to a Color and RGB image.
-
-    Args:
-        frame (av.frame.Frame): The input frame.
-
-    Returns:
-        tuple: The BGR image and the RGB image.
-    """
-    image = cv2.cvtColor(np.array(frame.to_image()), cv2.COLOR_RGB2BGR)
-    frame_rgb = cv2.cvtColor(image, cv2.COLOR_BGR2RGB)
-    return image, frame_rgb
 
 
 class VideoProcessor:
@@ -114,7 +98,7 @@ class VideoProcessor:
         avg_shoulder_x, avg_shoulder_y = self.process_pose_landmarks(pose_results)
 
         # Perform person color similarity check every 30th frame
-        if self.frame_count % 30 == 0 and get_detect_colors:
+        if self.frame_count % 30 == 0:
             self.last_similarity = check_person_similarity(frame_rgb, self.pose_landmarks)
 
         # Follow person in the frame if tracking is activated
@@ -146,6 +130,21 @@ class VideoProcessor:
         """
         return self.current_frame
 
+    @staticmethod
+    def create_image_from_frame(frame):
+        """
+        Convert a frame to a Color and RGB image.
+
+        Args:
+            frame (av.frame.Frame): The input frame.
+
+        Returns:
+            tuple: The BGR image and the RGB image.
+        """
+        image = cv2.cvtColor(np.array(frame.to_image()), cv2.COLOR_RGB2BGR)
+        frame_rgb = cv2.cvtColor(image, cv2.COLOR_BGR2RGB)
+        return image, frame_rgb
+
     def start_video_stream(self):
         """
         Start the video stream and process each frame.
@@ -162,7 +161,7 @@ class VideoProcessor:
             while self.drone_controller.running:
                 for frame in container.decode(video=0):
                     # Get frame and convert to RGB
-                    image, frame_rgb = create_image_from_frame(frame)
+                    image, frame_rgb = self.create_image_from_frame(frame)
 
                     # Update the current frame
                     self.current_frame = image.copy()
@@ -204,7 +203,7 @@ class VideoProcessor:
 
                     # Check for key press
                     key = cv2.waitKey(1) & 0xFF
-                    if key == ord('c') and self.pose_landmarks and get_detect_colors:
+                    if key == ord('c') and self.pose_landmarks:
                         # Calibrate torso colors of person in frame
                         calibrate_colors(image, self.pose_landmarks)
                     if key == ord('q'):
