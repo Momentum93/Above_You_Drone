@@ -8,14 +8,16 @@ dependencies:
   - numpy==1.26.4
   - pynput
   - pyserial
-  - mediapipe
-  
+  - pillow==10.3.0
+  - scikit-learn
+
   - pip:
     - opencv-python==4.9.0.80
     - av==12.0.0
     - djitellopy==2.5.0
     - tellopy
-  - pillow==10.3.0
+    - mediapipe
+  
 
 
 

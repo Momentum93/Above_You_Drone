@@ -55,7 +55,7 @@ class SerialListener:
         if command == "<COMMAND>TAKEOFF": #'takeoff':
             print("Taking off...")
             self.drone_controller.takeoff()
-            
+
         elif command == '<COMMAND>LAND': #'land':
             print("Landing...")
             self.drone_controller.land()
@@ -75,6 +75,10 @@ class SerialListener:
         elif command == '<IMAGE>REQUEST_IMAGE':
             print("Send image...")
             self.send_image()
+
+        elif command == '<COMMAND>PANIC_BUTTON':
+            print("Pannic button activated!")
+            raise NameError("ToDo") # ToDo
 
     def send_image(self):
         frame = self.video_processor.get_current_frame()
