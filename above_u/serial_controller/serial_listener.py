@@ -84,7 +84,7 @@ class SerialListener:
         frame = self.video_processor.get_current_frame()
         if frame is not None:
             # Encode the image as jpg
-            ret, buffer = cv2.imencode('.jpg', frame)
+            ret, buffer = cv2.imencode('.jpg', frame) #convert to streaming data
             if ret:
                 # Convert buffer to base64 string
                 data = base64.b64encode(buffer).decode('utf-8')
