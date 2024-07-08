@@ -1,26 +1,61 @@
-name: Above_You_Drone
+name: Above_U
 channels:
-  - conda-forge
   - defaults
 dependencies:
-
-
-  - numpy==1.26.4
-  - pynput
-  - pyserial
-  - pillow==10.3.0
-  - scikit-learn
-
+  - bzip2=1.0.8=h80987f9_6
+  - ca-certificates=2024.3.11=hca03da5_0
+  - libffi=3.4.4=hca03da5_1
+  - ncurses=6.4=h313beb8_0
+  - openssl=3.0.14=h80987f9_0
+  - pip=24.0=py311hca03da5_0
+  - python=3.11.9=hb885b13_0
+  - readline=8.2=h1a28f6b_0
+  - setuptools=69.5.1=py311hca03da5_0
+  - sqlite=3.45.3=h80987f9_0
+  - tk=8.6.14=h6ba3021_0
+  - tzdata=2024a=h04d1e81_0
+  - wheel=0.43.0=py311hca03da5_0
+  - xz=5.4.6=h80987f9_1
+  - zlib=1.2.13=h18a0788_1
   - pip:
-    - opencv-python==4.9.0.80
-    - av==12.0.0
-    - djitellopy==2.5.0
-    - tellopy
-    - mediapipe
-  
-
-
-
-
-
-prefix: /opt/miniconda3/envs/Above_You_Drone
+      - absl-py==2.1.0
+      - attrs==23.2.0
+      - av==12.2.0
+      - cffi==1.16.0
+      - contourpy==1.2.1
+      - cycler==0.12.1
+      - flatbuffers==24.3.25
+      - fonttools==4.53.1
+      - future==1.0.0
+      - iso8601==2.1.0
+      - jax==0.4.30
+      - jaxlib==0.4.30
+      - joblib==1.4.2
+      - kiwisolver==1.4.5
+      - matplotlib==3.9.1
+      - mediapipe==0.10.14
+      - ml-dtypes==0.4.0
+      - numpy==2.0.0
+      - opencv-contrib-python==4.10.0.84
+      - opencv-python==4.10.0.84
+      - opt-einsum==3.3.0
+      - packaging==24.1
+      - pillow==10.4.0
+      - protobuf==4.25.3
+      - pycparser==2.22
+      - pynput==1.7.7
+      - pyobjc-core==10.3.1
+      - pyobjc-framework-applicationservices==10.3.1
+      - pyobjc-framework-cocoa==10.3.1
+      - pyobjc-framework-coretext==10.3.1
+      - pyobjc-framework-quartz==10.3.1
+      - pyparsing==3.1.2
+      - pyserial==3.5
+      - python-dateutil==2.9.0.post0
+      - pyyaml==6.0.1
+      - scikit-learn==1.5.1
+      - scipy==1.14.0
+      - six==1.16.0
+      - sounddevice==0.4.7
+      - tellopy==0.6.0
+      - threadpoolctl==3.5.0
